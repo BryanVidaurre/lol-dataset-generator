@@ -1,0 +1,23 @@
+# Environnement Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Clé API - NE JAMAIS COMMITER
+.env
+
+# Base de données locale (trop lourde pour GitHub)
+data/riot_dataset.db
+data/dataset.csv
+data/dataset_test.csv
+data/*.db
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
