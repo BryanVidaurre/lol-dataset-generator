@@ -1,134 +1,112 @@
-# 🎮 LoL Dataset Generator
+<div align="center">
+  
+# 🎮 League of Legends Match Dataset Generator for Machine Learning & XGBoost
 
-Un collecteur de données automatisé pour League of Legends utilisant l'API officielle Riot Games.
-Conçu pour générer un dataset ML propre à partir des matchs Ranked Solo/Duo des joueurs Challenger, Grandmaster et Master.
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![API](https://img.shields.io/badge/Riot%20Games-API-red)](https://developer.riotgames.com/)
+[![ML Ready](https://img.shields.io/badge/Machine%20Learning-Ready-brightgreen)]()
+
+An automated data collection tool using the official Riot Games API to generate a massive, clean, and ML-ready dataset of High-Elo (Challenger, Grandmaster, Master) Ranked Solo/Duo matches. 
+Perfect for Data Science, XGBoost win prediction models, and draft analysis!
+
+</div>
 
 ---
 
-## 📁 Structure du projet
+## 📖 Overview
 
-```
-lol_dataset/
-│
-├── collector/
-│   ├── 1_collect_players.py     # Phase 1 : Collecte des joueurs (PUUID)
-│   ├── 2_collect_matches.py     # Phase 2 : Collecte des Match IDs
-│   └── 3_collect_details.py     # Phase 3 : Extraction des détails (→ CSV)
-│
-├── config/
-│   └── settings.py              # Régions, routing, chemins
-│
-├── database/
-│   ├── db_manager.py            # Abstraction SQLite
-│   └── schema.sql               # Schéma de la base
-│
-├── utils/
-│   ├── riot_api.py              # Client API Riot
-│   ├── rate_limiter.py          # Limiteur de débit (thread-safe)
-│   ├── logger.py                # Logging
-│   └── verify_dataset.py        # Vérification du dataset final
-│
-├── data/                        # Généré automatiquement (ignoré par git)
-│   ├── riot_dataset.db          # Base SQLite
-│   └── dataset.csv              # Dataset ML final
-│
-├── .env.example                 # Template de configuration
-├── .gitignore
-└── README.md
-```
+This tool was built to solve the lack of massive, up-to-date League of Legends datasets. It automatically fetches top players across all regions, harvests their match history, and extracts the game details into a clean, flat CSV file. 
+
+The dataset is specifically structured for **Machine Learning** tasks, such as predicting the winning team based solely on the draft (champion synergies, counters, and average team elo).
+
+### 🌟 Features
+- **Massive Scale**: Capable of harvesting 800,000+ matches across all Riot regions.
+- **Resumable Collection**: Built-in SQLite database tracks progress. If your API key expires or your internet drops, you can restart without losing data or wasting API calls.
+- **ML-Ready CSV**: Flattens nested JSON responses into a single CSV row per match (Champions by role, Team Tiers, Game Duration, Patch, Win/Loss).
+- **Rate-Limit Safe**: Thread-safe rate limiter strictly adheres to Riot's Developer API limits.
+
+---
+
+## 📊 Dataset Format (`dataset.csv`)
+
+The generated CSV is structured for immediate use in frameworks like Pandas, Scikit-Learn, or XGBoost.
+
+| Column | Description |
+|---|---|
+| `match_id` | Unique Riot Match ID |
+| `patch` | Game version (e.g., "14.2") |
+| `game_duration` | Match duration in seconds |
+| `game_creation` | Unix timestamp of match start |
+| `t1_top` … `t1_support` | Team 1 champions by role (Top, Jgl, Mid, Bot, Sup) |
+| `t1_avg_tier` | Team 1 average tier score (1=Master, 2=GM, 3=Challenger) |
+| `t2_top` … `t2_support` | Team 2 champions by role |
+| `t2_avg_tier` | Team 2 average tier score |
+| `win_team1` | Boolean: `True` if Team 1 won |
 
 ---
 
 ## ⚙️ Installation
 
 ```bash
-# 1. Cloner le projet
-git clone https://github.com/votre-username/lol-dataset-generator.git
+# 1. Clone the repository
+git clone https://github.com/mehdbenguiza/lol-dataset-generator.git
 cd lol-dataset-generator/lol_dataset
 
-# 2. Créer l'environnement virtuel
+# 2. Create a virtual environment
 python -m venv venv
 
-# 3. Activer l'environnement
-# Windows :
+# 3. Activate the environment
+# On Windows:
 venv\Scripts\activate
-# Linux/Mac :
+# On Linux/Mac:
 source venv/bin/activate
 
-# 4. Installer les dépendances
+# 4. Install dependencies
 pip install requests pandas tqdm python-dotenv
 
-# 5. Configurer la clé API
+# 5. Setup your API key
 cp .env.example .env
-# Editer .env et remplacer par votre clé Riot Developer
+# Edit .env and paste your Riot Developer API Key
 ```
 
 ---
 
-## 🔑 Obtenir une clé API Riot
+## 🚀 Usage Guide
 
-1. Rendez-vous sur [developer.riotgames.com](https://developer.riotgames.com)
-2. Connectez-vous avec votre compte Riot
-3. Générez une clé de développement (valable 24h)
-4. Copiez-la dans votre fichier `.env`
+The collection process is split into 3 independent phases.
 
-> ⚠️ **La clé développeur expire toutes les 24h.** Renouvelez-la chaque jour avant de lancer la collecte.
-
----
-
-## 🚀 Utilisation
-
-### Phase 1 — Collecter les joueurs
+### Phase 1: Collect High-Elo Players
 ```bash
 python collector\1_collect_players.py
 ```
-Collecte ~80 000 joueurs (Challenger, Grandmaster, Master) dans toutes les régions.
+Scrapes all Challenger, Grandmaster, and Master players across all regions and stores their PUUIDs in the local SQLite database.
 
-### Phase 2 — Collecter les Match IDs
+### Phase 2: Collect Match IDs
 ```bash
 python collector\2_collect_matches.py
 ```
-Récupère tous les match IDs Ranked Solo/Duo (saison 2026) pour chaque joueur.
+Iterates through all collected players and fetches their historical Ranked Solo/Duo Match IDs for the current season. Duplicates (players in the same match) are automatically ignored.
 
-### Phase 3 — Extraire les détails
+### Phase 3: Extract Details to CSV
 ```bash
 python collector\3_collect_details.py
 ```
-Télécharge les détails de chaque match et génère `data/dataset.csv`.
+Downloads the detailed telemetry for each Match ID, calculates the average team tiers, assigns champions to their exact roles, and appends the flattened data to `data/dataset.csv`.
 
-> ✅ Chaque phase est **reprénable** : vous pouvez l'arrêter et la relancer, elle reprend exactement où elle s'était arrêtée.
-
----
-
-## 📊 Format du Dataset
-
-Le fichier `dataset.csv` contient les colonnes suivantes :
-
-| Colonne | Description |
-|---|---|
-| `match_id` | Identifiant unique du match |
-| `patch` | Version du jeu |
-| `game_duration` | Durée en secondes |
-| `game_creation` | Timestamp de création |
-| `t1_top` … `t1_support` | Champions de l'équipe 1 par rôle |
-| `t1_avg_tier` | Tier moyen équipe 1 (1=Master, 2=GM, 3=Challenger) |
-| `t2_top` … `t2_support` | Champions de l'équipe 2 par rôle |
-| `t2_avg_tier` | Tier moyen équipe 2 |
-| `win_team1` | True si l'équipe 1 a gagné |
+> ✅ **Tip:** You can stop any phase using `Ctrl+C` and restart it later. The SQLite database ensures it picks up exactly where it left off.
 
 ---
 
-## ⚖️ Conformité Riot Games
+## ⚖️ Riot Games Compliance
 
-Ce projet respecte les [Conditions d'utilisation de l'API Riot](https://developer.riotgames.com/terms) :
-- ✅ Utilisation uniquement des endpoints officiels documentés
-- ✅ Clé API sécurisée (jamais committée, stockée dans `.env`)
-- ✅ Projet à usage personnel / éducatif / recherche ML
-- ✅ Aucune publication communautaire avec clé développeur
-- ✅ Respect des rate limits
+This project was built in strict compliance with the [Riot Games API Terms of Use](https://developer.riotgames.com/terms):
+- ✅ Uses only official and documented Riot API endpoints (Match-V5, League-V4).
+- ✅ Rate-limits are strictly enforced.
+- ✅ Personal API keys are protected and never hardcoded (using `.env`).
+- ✅ Non-commercial, open-source project intended for educational ML research.
 
 ---
 
-## 📄 Licence
-
-MIT License — Libre d'utilisation dans le respect des CGU Riot Games.
+## 🔑 Keywords for Search
+`league-of-legends` `lol-dataset` `riot-api` `machine-learning` `xgboost` `python` `data-science` `esports-analytics` `match-prediction` `champion-draft` `ranked-solo-duo` `league-v4` `match-v5`
