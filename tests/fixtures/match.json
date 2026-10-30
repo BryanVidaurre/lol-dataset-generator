@@ -1,0 +1,164 @@
+{
+  "metadata": {
+    "matchId": "KR_123"
+  },
+  "info": {
+    "gameVersion": "14.2.123",
+    "gameDuration": 1800,
+    "gameCreation": 1706000000000,
+    "participants": [
+      {
+        "participantId": 1,
+        "puuid": "test-puuid-1",
+        "teamId": 100,
+        "teamPosition": "TOP",
+        "individualPosition": "TOP",
+        "championName": "Aster",
+        "win": true
+      },
+      {
+        "participantId": 2,
+        "puuid": "test-puuid-2",
+        "teamId": 100,
+        "teamPosition": "JUNGLE",
+        "individualPosition": "JUNGLE",
+        "championName": "Bramble",
+        "win": true
+      },
+      {
+        "participantId": 3,
+        "puuid": "test-puuid-3",
+        "teamId": 100,
+        "teamPosition": "MIDDLE",
+        "individualPosition": "MIDDLE",
+        "championName": "Cinder",
+        "win": true
+      },
+      {
+        "participantId": 4,
+        "puuid": "test-puuid-4",
+        "teamId": 100,
+        "teamPosition": "BOTTOM",
+        "individualPosition": "BOTTOM",
+        "championName": "Dune",
+        "win": true
+      },
+      {
+        "participantId": 5,
+        "puuid": "test-puuid-5",
+        "teamId": 100,
+        "teamPosition": "UTILITY",
+        "individualPosition": "UTILITY",
+        "championName": "Ember",
+        "win": true
+      },
+      {
+        "participantId": 6,
+        "puuid": "test-puuid-6",
+        "teamId": 200,
+        "teamPosition": "TOP",
+        "individualPosition": "TOP",
+        "championName": "Frost",
+        "win": false
+      },
+      {
+        "participantId": 7,
+        "puuid": "test-puuid-7",
+        "teamId": 200,
+        "teamPosition": "JUNGLE",
+        "individualPosition": "JUNGLE",
+        "championName": "Glimmer",
+        "win": false
+      },
+      {
+        "participantId": 8,
+        "puuid": "test-puuid-8",
+        "teamId": 200,
+        "teamPosition": "MIDDLE",
+        "individualPosition": "MIDDLE",
+        "championName": "Harbor",
+        "win": false
+      },
+      {
+        "participantId": 9,
+        "puuid": "test-puuid-9",
+        "teamId": 200,
+        "teamPosition": "BOTTOM",
+        "individualPosition": "BOTTOM",
+        "championName": "Iris",
+        "win": false
+      },
+      {
+        "participantId": 10,
+        "puuid": "test-puuid-10",
+        "teamId": 200,
+        "teamPosition": "UTILITY",
+        "individualPosition": "UTILITY",
+        "championName": "Juniper",
+        "win": false
+      }
+    ],
+    "teams": [
+      {
+        "teamId": 200,
+        "win": false,
+        "objectives": {
+          "champion": {
+            "first": false,
+            "kills": 10
+          },
+          "tower": {
+            "first": false,
+            "kills": 2
+          },
+          "dragon": {
+            "first": false,
+            "kills": 1
+          },
+          "riftHerald": {
+            "first": false,
+            "kills": 0
+          },
+          "baron": {
+            "first": false,
+            "kills": 0
+          },
+          "inhibitor": {
+            "first": false,
+            "kills": 0
+          }
+        }
+      },
+      {
+        "teamId": 100,
+        "win": true,
+        "objectives": {
+          "champion": {
+            "first": true,
+            "kills": 20
+          },
+          "tower": {
+            "first": true,
+            "kills": 7
+          },
+          "dragon": {
+            "first": true,
+            "kills": 3
+          },
+          "riftHerald": {
+            "first": true,
+            "kills": 1
+          },
+          "baron": {
+            "first": true,
+            "kills": 1
+          },
+          "inhibitor": {
+            "first": true,
+            "kills": 3
+          }
+        }
+      }
+    ]
+  }
+}

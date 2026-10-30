@@ -1,0 +1,85 @@
+{
+  "metadata": {
+    "matchId": "KR_123"
+  },
+  "info": {
+    "frames": [
+      {
+        "events": [
+          {
+            "type": "CHAMPION_KILL",
+            "timestamp": 188000,
+            "killerId": 3,
+            "victimId": 7,
+            "assistingParticipantIds": [
+              1,
+              2
+            ],
+            "position": {
+              "x": 100,
+              "y": 200
+            }
+          },
+          {
+            "type": "ITEM_PURCHASED",
+            "timestamp": 200000,
+            "participantId": 3,
+            "itemId": 1001
+          },
+          {
+            "type": "ELITE_MONSTER_KILL",
+            "timestamp": 315000,
+            "killerId": 8,
+            "killerTeamId": 200,
+            "monsterType": "HORDE",
+            "position": {
+              "x": 500,
+              "y": 600
+            }
+          },
+          {
+            "type": "BUILDING_KILL",
+            "timestamp": 635000,
+            "killerId": 3,
+            "teamId": 200,
+            "buildingType": "TOWER_BUILDING",
+            "towerType": "OUTER_TURRET",
+            "laneType": "MID_LANE",
+            "position": {
+              "x": 300,
+              "y": 400
+            }
+          }
+        ]
+      },
+      {
+        "events": [
+          {
+            "type": "ELITE_MONSTER_KILL",
+            "timestamp": 487000,
+            "killerId": 3,
+            "monsterType": "DRAGON",
+            "monsterSubType": "FIRE_DRAGON"
+          },
+          {
+            "type": "ELITE_MONSTER_KILL",
+            "timestamp": 1213000,
+            "killerId": 8,
+            "monsterType": "BARON_NASHOR"
+          },
+          {
+            "type": "FUTURE_OBJECTIVE_CAPTURED",
+            "timestamp": 1350000,
+            "killerId": 3,
+            "monsterType": "NEW_BOSS_NAME"
+          },
+          {
+            "type": "DRAGON_SOUL_GIVEN",
+            "timestamp": 1500000,
+            "teamId": 100
+          }
+        ]
+      }
+    ]
+  }
+}

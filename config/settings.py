@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 API_KEY = os.getenv("RIOT_API_KEY")
 
@@ -36,8 +37,9 @@ ROUTING_REGIONS = {
 
 TIERS = ["challenger", "grandmaster", "master"]
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "riot_dataset.db")
-LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+DATA_DIR = os.path.abspath(os.getenv("RIOT_DATA_DIR", os.path.join(BASE_DIR, "data")))
+DB_PATH = os.path.join(DATA_DIR, "riot_dataset.db")
+LOGS_DIR = os.path.abspath(os.getenv("RIOT_LOGS_DIR", os.path.join(BASE_DIR, "logs")))
 
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 os.makedirs(LOGS_DIR, exist_ok=True)

@@ -21,3 +21,12 @@ logs/
 # IDE
 .vscode/
 .idea/
+
+# Timeline exports and local verification environment
+.venv/
+data/events.csv
+data/milestones.csv
+data/*.tmp
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
