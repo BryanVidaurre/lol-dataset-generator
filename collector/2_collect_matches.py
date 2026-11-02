@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config.settings import ROUTING_REGIONS, DB_PATH
+from config.settings import REGIONS, ROUTING_REGIONS, DB_PATH
 from utils.riot_api import get_match_ids
 from utils.logger import get_logger
 from database import db_manager
@@ -73,10 +73,10 @@ def main():
 
     while True:
         # Load batch of unprocessed players
-        players = db_manager.get_unprocessed_players(limit=500)
+        players = db_manager.get_unprocessed_players(limit=500, regions=REGIONS)
 
         if not players:
-            logger.info("All players processed! Phase 2 complete.")
+            logger.info("All players in configured regions processed! Phase 2 complete.")
             break
 
         logger.info(f"Processing batch of {len(players)} players with {NUM_THREADS} threads...")

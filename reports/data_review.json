@@ -1,0 +1,345 @@
+{
+  "generated_at_utc": "2026-10-31T17:01:57.465525+00:00",
+  "summary": {
+    "matches": 29965,
+    "milestones": 29965,
+    "columns": {
+      "dataset": 49,
+      "milestones": 18
+    },
+    "headers": {
+      "dataset": [
+        "match_id",
+        "patch",
+        "game_duration",
+        "game_creation",
+        "t1_top",
+        "t1_jungle",
+        "t1_middle",
+        "t1_bottom",
+        "t1_support",
+        "t1_avg_tier",
+        "t2_top",
+        "t2_jungle",
+        "t2_middle",
+        "t2_bottom",
+        "t2_support",
+        "t2_avg_tier",
+        "win_team1",
+        "t1_first_blood",
+        "t1_champion_kills",
+        "t1_first_tower",
+        "t1_tower_kills",
+        "t1_first_dragon",
+        "t1_dragon_kills",
+        "t1_first_herald",
+        "t1_herald_kills",
+        "t1_first_horde",
+        "t1_horde_kills",
+        "t1_first_baron",
+        "t1_baron_kills",
+        "t1_first_atakhan",
+        "t1_atakhan_kills",
+        "t1_first_inhibitor",
+        "t1_inhibitor_kills",
+        "t2_first_blood",
+        "t2_champion_kills",
+        "t2_first_tower",
+        "t2_tower_kills",
+        "t2_first_dragon",
+        "t2_dragon_kills",
+        "t2_first_herald",
+        "t2_herald_kills",
+        "t2_first_horde",
+        "t2_horde_kills",
+        "t2_first_baron",
+        "t2_baron_kills",
+        "t2_first_atakhan",
+        "t2_atakhan_kills",
+        "t2_first_inhibitor",
+        "t2_inhibitor_kills"
+      ],
+      "milestones": [
+        "match_id",
+        "patch",
+        "first_blood_team",
+        "first_blood_time",
+        "first_tower_team",
+        "first_tower_time",
+        "first_dragon_team",
+        "first_dragon_time",
+        "first_herald_team",
+        "first_herald_time",
+        "first_horde_team",
+        "first_horde_time",
+        "first_baron_team",
+        "first_baron_time",
+        "first_atakhan_team",
+        "first_atakhan_time",
+        "first_inhibitor_team",
+        "first_inhibitor_time"
+      ]
+    },
+    "missing_summary_values": {},
+    "quality_errors": {
+      "duplicate_match_id": 0,
+      "invalid_row_width": 0,
+      "invalid_win_boolean": 0,
+      "repeated_champion_within_match": 0,
+      "invalid_objective_boolean": 0,
+      "negative_objective_count": 0,
+      "duplicate_milestone_match": 0,
+      "milestone_patch_mismatch": 0,
+      "invalid_milestone_team": 0,
+      "milestone_team_without_time": 0,
+      "milestone_outside_duration_margin": 0
+    },
+    "missing_milestones": 0,
+    "first_flag_disagreement_matches": {
+      "blood": 60
+    },
+    "milestone_time_without_team": {
+      "herald": 2083,
+      "horde": 29
+    },
+    "milestone_time_with_zero_final_kills": {
+      "herald": 2083,
+      "horde": 28
+    },
+    "patches": {
+      "16.20": 8972,
+      "16.21": 8557,
+      "16.19": 4762,
+      "16.18": 2898,
+      "16.17": 2173,
+      "16.16": 1066,
+      "16.15": 579,
+      "16.14": 376,
+      "16.13": 137,
+      "16.11": 79,
+      "16.8": 67,
+      "16.10": 56,
+      "16.6": 52,
+      "16.12": 49,
+      "16.7": 43,
+      "16.9": 31,
+      "16.1": 24,
+      "16.3": 17,
+      "16.4": 12,
+      "16.5": 7,
+      "16.2": 6,
+      "15.24": 2
+    },
+    "regions": {
+      "KR": 5995,
+      "NA1": 5995,
+      "EUW1": 5994,
+      "LA2": 5992,
+      "BR1": 5989
+    },
+    "team1_wins": 14268,
+    "team1_win_pct": 47.61555147672284,
+    "numeric": {
+      "duration_minutes": {
+        "min": 1.0,
+        "p05": 15.283333333333333,
+        "median": 26.816666666666666,
+        "mean": 26.443391178597253,
+        "p95": 36.9,
+        "max": 60.5
+      },
+      "t1_avg_tier": {
+        "min": 0.0,
+        "p05": 1.0,
+        "median": 1.4,
+        "mean": 1.5606223927915903,
+        "p95": 2.6,
+        "max": 3.0
+      },
+      "t2_avg_tier": {
+        "min": 0.0,
+        "p05": 1.0,
+        "median": 1.5,
+        "mean": 1.6144855664942432,
+        "p95": 2.75,
+        "max": 3.0
+      }
+    },
+    "unknown_tier_teams": {
+      "t1": 438,
+      "t2": 299
+    },
+    "matches_with_unknown_tier": 737,
+    "objective_present_matches": {
+      "tower": 29309,
+      "dragon": 29388,
+      "herald": 24823,
+      "horde": 29383,
+      "baron": 22352,
+      "atakhan": 2,
+      "inhibitor": 23263
+    },
+    "matches_under_5_minutes": 437,
+    "matches_over_60_minutes": 1,
+    "game_dates_utc": [
+      "2026-01-02T16:54:23.008000+00:00",
+      "2026-10-30T16:38:29.751000+00:00"
+    ],
+    "top_champions": {
+      "LeeSin": 5147,
+      "Jhin": 5089,
+      "Yone": 5073,
+      "Sylas": 4756,
+      "Kaisa": 4514,
+      "Jayce": 4235,
+      "Qiyana": 4192,
+      "Lulu": 4075,
+      "Yasuo": 4067,
+      "Syndra": 4066,
+      "Ezreal": 3930,
+      "Yunara": 3857,
+      "Nautilus": 3780,
+      "Locke": 3719,
+      "Thresh": 3619
+    },
+    "blood_disagreement_first_death_audit": {
+      "matches_checked": 60,
+      "first_champion_kill_event_with_killerId_0": 60
+    }
+  },
+  "events": {
+    "rows": 4145001,
+    "columns": 22,
+    "header": [
+      "event_id",
+      "match_id",
+      "patch",
+      "timestamp_ms",
+      "minute",
+      "frame_index",
+      "event_index",
+      "event_type",
+      "team_id",
+      "actor_team_id",
+      "killer_id",
+      "victim_id",
+      "assisting_participant_ids",
+      "monster_type",
+      "monster_sub_type",
+      "building_type",
+      "tower_type",
+      "lane_type",
+      "position_x",
+      "position_y",
+      "kill_type",
+      "raw_event"
+    ],
+    "event_types": {
+      "CHAMPION_KILL": 1680160,
+      "TURRET_PLATE_DESTROYED": 1573188,
+      "BUILDING_KILL": 362384,
+      "ELITE_MONSTER_KILL": 250474,
+      "CHAMPION_SPECIAL_KILL": 244331,
+      "DRAGON_SOUL_GIVEN": 34464
+    },
+    "monster_types": {
+      "DRAGON": 105378,
+      "HORDE": 88212,
+      "BARON_NASHOR": 29976,
+      "RIFTHERALD": 26906,
+      "ATAKHAN": 2
+    },
+    "missing_optional_fields": {
+      "team_id": 35531,
+      "actor_team_id": 35531,
+      "position_x": 34464,
+      "killer_id": 34464
+    },
+    "errors": {
+      "invalid_row_width": 0,
+      "duplicate_adjacent_event": 0,
+      "event_order_violation": 0,
+      "invalid_event_id": 0,
+      "invalid_minute": 0,
+      "invalid_timestamp": 0,
+      "invalid_team": 0,
+      "invalid_actor_team": 0,
+      "event_patch_mismatch": 0,
+      "event_beyond_duration_margin": 0,
+      "invalid_assisting_list": 0,
+      "raw_type_mismatch": 0,
+      "raw_timestamp_mismatch": 0,
+      "raw_field_mismatch": 0,
+      "raw_participant_mismatch": 0
+    },
+    "matches_with_events": 29643,
+    "summary_matches_without_events": 322,
+    "objective_count_disagreements": {
+      "t2_champion_kills": 2199,
+      "t1_champion_kills": 2215
+    },
+    "first_objective_flag_disagreements": {
+      "t1_first_blood": 59,
+      "t2_first_blood": 54
+    },
+    "milestone_event_disagreements": {},
+    "examples": {},
+    "event_uniqueness_certified": true,
+    "no_event_match_duration_seconds": {
+      "min": 60.0,
+      "max": 147.0
+    }
+  },
+  "database": {
+    "counts": {
+      "players": 52975,
+      "matches": 44908,
+      "match_summaries": 29965,
+      "events": 4145001,
+      "milestones": 29965
+    },
+    "quick_check": "Not run: physical verification is optional (--physical-integrity)",
+    "foreign_key_errors": [],
+    "timeline_errors": [],
+    "sample": [
+      [
+        "weekend",
+        30000,
+        29965,
+        35
+      ]
+    ],
+    "csv_counts_match_sqlite": {
+      "dataset": true,
+      "events": true,
+      "milestones": true
+    }
+  },
+  "files": {
+    "dataset.csv": {
+      "bytes": 7648351,
+      "modified_ns": 1793461311272653900
+    },
+    "events.csv": {
+      "bytes": 13199307353,
+      "modified_ns": 1793462370858102300
+    },
+    "milestones.csv": {
+      "bytes": 3161145,
+      "modified_ns": 1793462413010103300
+    }
+  },
+  "summary_flags": {
+    "file": "summary_quality_flags.csv",
+    "flagged_matches": 3262,
+    "counts": {
+      "unknown_team_tier": 737,
+      "unattributed_first_herald": 2083,
+      "first_blood_source_disagreement": 60,
+      "duration_under_5_minutes": 437,
+      "no_tracked_events": 322,
+      "unattributed_first_horde": 29
+    },
+    "scope": "Flags derived from summaries and milestones; event kill-count differences are aggregated separately."
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "generated_at_utc": "2026-10-31T17:28:46.001801+00:00",
+  "dataset_sha256": "8d641339c31fce12d478c5edf49c2743a52554ed9cc7178263a8895976f33c0c",
+  "cleaning": {
+    "original_matches": 29965,
+    "removed_short_matches": 437,
+    "usable_matches": 29528,
+    "minimum_duration_seconds": 300
+  },
+  "split": {
+    "train": {
+      "matches": 20653,
+      "first_start_utc": "2026-01-02T16:54:23.008000+00:00",
+      "last_start_utc": "2026-10-20T20:13:56.542000+00:00",
+      "team1_win_rate": 0.47789667360673993
+    },
+    "validation": {
+      "matches": 4408,
+      "first_start_utc": "2026-10-20T20:37:08.451000+00:00",
+      "last_start_utc": "2026-10-25T20:52:43.362000+00:00",
+      "team1_win_rate": 0.4745916515426497
+    },
+    "test": {
+      "matches": 4430,
+      "first_start_utc": "2026-10-25T21:18:50.351000+00:00",
+      "last_start_utc": "2026-10-30T16:38:29.751000+00:00",
+      "team1_win_rate": 0.46997742663656883
+    }
+  },
+  "purged_boundary_matches": 37,
+  "features": [
+    "t1_top",
+    "t1_jungle",
+    "t1_middle",
+    "t1_bottom",
+    "t1_support",
+    "t2_top",
+    "t2_jungle",
+    "t2_middle",
+    "t2_bottom",
+    "t2_support",
+    "patch_group"
+  ],
+  "excluded_features": [
+    "current average tiers",
+    "final objectives",
+    "duration",
+    "timestamps",
+    "match ID"
+  ],
+  "best_C": 1.0,
+  "scores_on_untouched_test": {
+    "draft_logistic": {
+      "matches": 4430,
+      "accuracy": 0.5277652370203161,
+      "balanced_accuracy": 0.5228188971094823,
+      "roc_auc": 0.5259192118049248,
+      "log_loss": 0.7085706887980285,
+      "confusion_matrix": [
+        [
+          1421,
+          927
+        ],
+        [
+          1165,
+          917
+        ]
+      ]
+    },
+    "dummy_prior": {
+      "matches": 4430,
+      "accuracy": 0.5300225733634312,
+      "balanced_accuracy": 0.5,
+      "roc_auc": 0.5,
+      "log_loss": 0.6914513502164293,
+      "confusion_matrix": [
+        [
+          2348,
+          0
+        ],
+        [
+          2082,
+          0
+        ]
+      ]
+    }
+  },
+  "versions": {
+    "python": "3.15.0",
+    "pandas": "3.1.0",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1"
+  },
+  "limitations": [
+    "Observational associations do not establish causation.",
+    "Current team tiers are excluded because historical rank is unavailable.",
+    "Champion interactions and player skill are not modeled.",
+    "Players may occur in multiple matches; this is not a player-disjoint evaluation.",
+    "Learning curve is exploratory, uses one fixed validation period and one random seed."
+  ]
+}

@@ -110,7 +110,8 @@ def get_puuid(region_code, summoner_id):
     return None
 
 
-def get_match_ids(routing_region, puuid, start=0, count=100, queue=420, start_time=None):
+def get_match_ids(routing_region, puuid, start=0, count=100, queue=420, start_time=None,
+                  raise_on_error=False):
     """Fetch Ranked Solo/Duo IDs, by default starting on January 1, 2026."""
     if start_time is None:
         start_time = int(datetime.datetime(2026, 1, 1).timestamp())
@@ -122,7 +123,9 @@ def get_match_ids(routing_region, puuid, start=0, count=100, queue=420, start_ti
             params.append(f"{name}={value}")
     if params:
         url += "?" + "&".join(params)
-    data = make_request(url)
+    data = make_request(url, raise_on_error=raise_on_error)
+    if raise_on_error and not isinstance(data, list):
+        raise RiotAPIError('Riot API returned an invalid match history', 200)
     return data if isinstance(data, list) else []
 
 

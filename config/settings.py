@@ -8,16 +8,10 @@ API_KEY = os.getenv("RIOT_API_KEY")
 
 REGIONS = {
     "EUW": "euw1",
-    "EUNE": "eun1",
     "NA": "na1",
     "KR": "kr",
     "BR": "br1",
-    "JP": "jp1",
-    "OCE": "oc1",
-    "LAN": "la1",
     "LAS": "la2",
-    "TR": "tr1",
-    "RU": "ru"
 }
 
 # The routing regions for match-v5 endpoints

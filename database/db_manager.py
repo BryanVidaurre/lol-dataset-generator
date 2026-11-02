@@ -42,10 +42,20 @@ def mark_player_matches_collected(puuid):
         conn.execute("UPDATE players SET matches_collected = 1 WHERE puuid = ?", (puuid,))
         conn.commit()
 
-def get_unprocessed_players(limit=1000):
+def get_unprocessed_players(limit=1000, regions=None):
     with closing(get_connection()) as conn, conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT puuid, region FROM players WHERE matches_collected = 0 LIMIT ?", (limit,))
+        if regions is None:
+            cursor.execute("SELECT puuid, region FROM players WHERE matches_collected = 0 LIMIT ?", (limit,))
+        else:
+            regions = tuple(regions)
+            if not regions:
+                return []
+            placeholders = ','.join('?' for _ in regions)
+            cursor.execute(
+                f"SELECT puuid, region FROM players WHERE matches_collected = 0 AND region IN ({placeholders}) LIMIT ?",
+                (*regions, limit),
+            )
         return cursor.fetchall()
 
 def save_checkpoint(task_name, region, tier, last_processed_id):

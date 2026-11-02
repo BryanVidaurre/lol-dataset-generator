@@ -30,3 +30,5 @@ data/*.tmp
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm
+data/weekend/
+data/weekend.lock

@@ -4,6 +4,86 @@ Collect High Elo (Master, Grandmaster and Challenger) Ranked Solo/Duo matches
 through the Riot Games API. The existing player and match-ID collectors feed
 two independent collectors: final match summaries and timeline events.
 
+## Weekend collection: a sample sized for roughly a weekend
+
+The **40-hour figure is a planning reference, not a time limit**. Collection and
+CSV export continue beyond that reference until the selected sample has been
+attempted. There is no clock-based cancellation or supervisor terminating the
+process. Actual duration depends on latency, rate limits, retries and API-key
+availability.
+
+**Stop the previous collectors first**, then run this command for the sample
+(it replaces the manual Phase 2/3/4 sequence):
+
+```powershell
+# Required once when starting with an empty database:
+.\.venv\Scripts\python.exe collector/1_collect_players.py
+
+# Reuse those players to build the sample:
+.\.venv\Scripts\python.exe collector/collect_weekend.py
+```
+
+If both players and match IDs are absent, the sample collector exits with an
+explicit Phase 1 instruction instead of reporting a successful empty export.
+After Phase 1, rerun the same sample command. Empty selections from earlier
+versions are reopened automatically; existing nonempty samples are preserved.
+
+The default target remains **up to 30,000 complete matches**, retaining all
+existing columns, relevant events and milestones. With the configured limiter,
+60,000 requests have an ideal lower bound of 20 hours; this is not an ETA.
+The final count can be smaller if drafts are excluded, IDs are unavailable, or
+requests fail. Failed requests remain pending for retry by rerunning the command.
+
+- Existing match IDs and downloaded details/timelines are reused. For configured
+  regions without enough IDs, discovery requests only **one recent history page
+  of up to 100 matches per player**, for at most 100 players per region by default.
+  Players are sampled across Master, Grandmaster and Challenger. Partial history
+  requests do not mark full histories as collected.
+- Match selection uses a fixed seed and equal quotas across configured platforms,
+  redistributing shortages to available regions. Selection freezes after bounded
+  discovery, and reruns process the same selected matches. This does not guarantee
+  population representativeness or equal final counts after API failures.
+- Details and timeline are collected together per match. **Only matches with both
+  a valid summary and a successfully processed timeline are exported**. Failed
+  timelines retain their downloaded details for a later retry.
+- Ctrl+C preserves the selection and committed results, then exports CSV. An API
+  authentication error stops with a message to update `.env`; rerun to continue.
+  Runs created by the older timed version resume normally: their stored deadline
+  fields are ignored. No migration or reset of collected data is required.
+- The existing database, CSV files and standalone collectors are retained.
+  Sampling tables `weekend_runs`, `weekend_matches` and `weekend_sources` are
+  initialized through `database/weekend_store.py` using the existing connection.
+- Output files are **`data/weekend/dataset.csv`**, **`data/weekend/events.csv`**
+  and **`data/weekend/milestones.csv`**. Snapshots are exported periodically,
+  at completion and on a clean interruption, using atomic file replacement.
+- An OS file lock prevents two sample collectors from running simultaneously.
+  Other standalone collectors do not share this lock or the process-local rate
+  limiter: **do not run them concurrently with this mode**.
+
+Inspect the plan without API calls or starting collection:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_weekend.py --plan
+```
+
+Choose a different sample size on the first launch, for example:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_weekend.py --max-matches 15000
+```
+
+`--hours` changes only the time reference displayed by `--plan`; it does not
+change the sample size or impose a deadline. `--max-matches` sets the sample
+size. Persisted sample settings take precedence when resuming the same run.
+To deliberately create a new selection, use a different `--run-name`; its files
+are written to `data/weekend/<run-name>/`.
+
+Rebuild CSV snapshots without any downloads:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_weekend.py --export-only
+```
+
 ## Installation
 
 Python 3.8+ and a Riot API key are required.
@@ -253,6 +333,56 @@ live collection utilities; they are not part of the offline unit test suite.
 
 Optional: install `pandas` to use the pre-existing
 `utils/verify_dataset.py` inspection utility.
+
+## Start mining the collected data
+
+The optional mining experiment uses `dataset.csv` and `milestones.csv`; it does
+not load the multi-gigabyte events CSV or call Riot. Use Python 3.11+ for the
+optional analysis environment.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-mining.txt
+.\.venv\Scripts\python.exe analysis/mine_dataset.py
+```
+
+Results are written to **`reports/mining/mining_report.md`**. The experiment:
+
+- Excludes matches shorter than five minutes from this analysis.
+- Uses one row per match and chronological training/validation/test blocks
+  (approximately 70/15/15). Boundary matches whose outcomes were not yet
+  available when the next block started are purged.
+- Trains regularized logistic regression on champions by role and patch. Its
+  strength is selected on validation, then the final model is compared with a
+  Dummy classifier on the latest held-out test block. A
+  [scikit-learn pipeline](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage)
+  fits categorical preprocessing only on the corresponding training data.
+- Excludes final objectives, duration, match identifiers and current team tiers
+  from predictive inputs. Current rank snapshots are not historical ranks.
+- Calculates descriptive association rules for the first objectives captured
+  by minute 15 and victory, reporting cases, support, confidence and lift. It
+  excludes unattributed objectives, first blood and rules with fewer than 30 cases.
+  These are pre-specified single-condition rules, not an exhaustive Apriori search.
+- Produces ROC/confusion/feature-weight plots, an exploratory learning curve,
+  test predictions, split memberships, JSON metrics and a saved model.
+
+Only the champion draft and patch are used for the pregame prediction. Objective
+rules are a separate observational analysis; they do not establish causality.
+A weak result is still informative: compare with the reference before deciding
+whether to collect more data or build a more complex model. A later experiment
+using the first 10-15 minutes must exclude every event after its prediction time.
+
+To use a different sample or output location:
+
+```powershell
+.\.venv\Scripts\python.exe analysis/mine_dataset.py --dataset data/weekend/dataset.csv --milestones data/weekend/milestones.csv --output reports/mining
+```
+
+Mining tests are optional and skip automatically if the extra dependencies are
+not installed:
+
+```powershell
+.\.venv\Scripts\python.exe -B -m unittest tests.test_mining -v
+```
 
 ## API references
 
