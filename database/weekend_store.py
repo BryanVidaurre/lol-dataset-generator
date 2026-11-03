@@ -64,6 +64,39 @@ def load_run(name):
         return dict(row) if row is not None else None
 
 
+def extend_run(name, base_name, additional, hours=40):
+    """Copy a frozen sample and reserve extra slots, atomically and resumably."""
+    if name == base_name or additional <= 0:
+        raise RuntimeError('Use a new run name and a positive additional match count')
+    initialize()
+    with closing(get_connection()) as conn, conn:
+        conn.row_factory = sqlite3.Row
+        base = conn.execute('SELECT * FROM weekend_runs WHERE name = ?', (base_name,)).fetchone()
+        count = conn.execute('SELECT COUNT(*) FROM weekend_matches WHERE run_name = ?',
+                             (base_name,)).fetchone()[0]
+        if base is None or not base['selection_done'] or not count:
+            raise RuntimeError('The base run must have a nonempty, frozen selection')
+        target = count + additional
+        row = conn.execute('SELECT * FROM weekend_runs WHERE name = ?', (name,)).fetchone()
+        if row is None:
+            started = time.time()
+            conn.execute('INSERT INTO weekend_runs VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)',
+                         (name, started, started + hours * 3600, started + hours * 3240,
+                          target, base['seed'], base['regions_json'], base['players_per_region']))
+        elif (row['target'], row['seed'], row['regions_json']) != (
+                target, base['seed'], base['regions_json']):
+            raise RuntimeError('This run name already exists with different sample settings')
+        missing = conn.execute('''SELECT COUNT(*) FROM weekend_matches b
+            WHERE b.run_name = ? AND NOT EXISTS (
+                SELECT 1 FROM weekend_matches w WHERE w.run_name = ? AND w.match_id = b.match_id
+            )''', (base_name, name)).fetchone()[0]
+        if row is not None and row['selection_done'] and missing:
+            raise RuntimeError('The existing frozen selection does not contain the entire base run')
+        conn.execute('''INSERT OR IGNORE INTO weekend_matches(run_name, match_id)
+            SELECT ?, match_id FROM weekend_matches WHERE run_name = ?''', (name, base_name))
+        return dict(conn.execute('SELECT * FROM weekend_runs WHERE name = ?', (name,)).fetchone())
+
+
 def availability(regions):
     with closing(get_connection()) as conn:
         return {region: conn.execute("SELECT COUNT(*) FROM matches WHERE match_id GLOB ?",
@@ -143,8 +176,13 @@ def select_matches(run):
                 (run['name'], platform.upper() + '_*')).fetchone()[0]
                 for region, platform in regions.items()}
     counts = availability(regions)
-    quotas = dict.fromkeys(regions, 0)
-    remaining = min(run['target'], sum(counts.values()))
+    with closing(get_connection()) as conn:
+        quotas = {region: conn.execute('''SELECT COUNT(*) FROM weekend_matches
+            WHERE run_name = ? AND match_id GLOB ?''',
+            (run['name'], platform.upper() + '_*')).fetchone()[0]
+            for region, platform in regions.items()}
+    reserved = dict(quotas)
+    remaining = min(run['target'], sum(counts.values())) - sum(quotas.values())
     while remaining:
         for region in regions:
             if remaining and quotas[region] < counts[region]:
@@ -158,9 +196,12 @@ def select_matches(run):
         conn.create_function('sample_hash', 1, _hash(run['seed']))
         for region, platform in regions.items():
             conn.execute("""INSERT OR IGNORE INTO weekend_matches(run_name, match_id)
-                SELECT ?, match_id FROM matches WHERE match_id GLOB ?
+                SELECT ?, match_id FROM matches m WHERE match_id GLOB ?
+                AND NOT EXISTS (SELECT 1 FROM weekend_matches w
+                                WHERE w.run_name = ? AND w.match_id = m.match_id)
                 ORDER BY sample_hash(match_id) LIMIT ?""",
-                         (run['name'], platform.upper() + '_*', quotas[region]))
+                         (run['name'], platform.upper() + '_*', run['name'],
+                          quotas[region] - reserved[region]))
         conn.execute("UPDATE weekend_runs SET selection_done = 1 WHERE name = ?", (run['name'],))
     return quotas
 

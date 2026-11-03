@@ -54,6 +54,61 @@ class WeekendTests(unittest.TestCase):
         self.assertEqual(store.progress('weekend')['selected'], 0)
         self.assertEqual(store.load_run('weekend')['selection_done'], 0)
 
+    def test_extension_keeps_base_after_new_ids_and_resumes_without_growing(self):
+        for mid in ('KR_1', 'KR_2', 'KR_3', 'KR_4'):
+            db_manager.save_match(mid, 'asia')
+        base = self.run_config(regions={'KR': 'kr'}, target=2)
+        store.select_matches(base)
+        with closing(db_manager.get_connection()) as conn:
+            original = {row[0] for row in conn.execute(
+                "SELECT match_id FROM weekend_matches WHERE run_name = 'weekend'")}
+        for index in range(5, 30):
+            db_manager.save_match(f'KR_{index}', 'asia')
+        extension = store.extend_run('larger', 'weekend', 3)
+        self.assertEqual(extension['target'], 5)
+        self.assertEqual(store.progress('larger')['selected'], 2)
+        store.select_matches(extension)
+        with closing(db_manager.get_connection()) as conn:
+            expanded = {row[0] for row in conn.execute(
+                "SELECT match_id FROM weekend_matches WHERE run_name = 'larger'")}
+        self.assertTrue(original <= expanded)
+        self.assertEqual(len(expanded - original), 3)
+        resumed = store.extend_run('larger', 'weekend', 3)
+        store.select_matches(resumed)
+        self.assertEqual(store.progress('larger')['selected'], 5)
+        self.assertEqual(store.progress('weekend')['selected'], 2)
+        with self.assertRaises(RuntimeError):
+            store.extend_run('larger', 'weekend', 4)
+
+    def test_extension_redistributes_shortages_without_exceeding_target(self):
+        for mid in ('KR_1', 'EUW1_1'):
+            db_manager.save_match(mid, 'asia')
+        store.select_matches(self.run_config(target=2))
+        for index in range(2, 6):
+            db_manager.save_match(f'KR_{index}', 'asia')
+        extension = store.extend_run('larger', 'weekend', 3)
+        self.assertEqual(store.select_matches(extension), {'EUW': 1, 'KR': 4})
+        self.assertEqual(store.progress('larger')['selected'], 5)
+
+    def test_invalid_extension_does_not_create_a_run(self):
+        self.run_config()
+        for base in ('missing', 'weekend'):
+            with self.assertRaises(RuntimeError):
+                store.extend_run('larger', base, 3)
+        self.assertIsNone(store.load_run('larger'))
+
+    def test_extension_cli_uses_saved_base_and_requires_both_options(self):
+        db_manager.save_match('KR_1', 'asia')
+        store.select_matches(self.run_config(regions={'KR': 'kr'}, target=1))
+        with patch.object(weekend, 'worker', return_value=0) as worker:
+            self.assertEqual(weekend.main(['--run-name', 'larger', '--extend-run', 'weekend',
+                                           '--additional-matches', '3']), 0)
+        self.assertEqual(worker.call_args[0][0]['target'], 4)
+        for options in (['--extend-run', 'weekend'], ['--additional-matches', '3'],
+                        ['--extend-run', 'weekend', '--additional-matches', '0']):
+            with self.assertRaises(SystemExit):
+                weekend.main(options)
+
     def test_empty_database_requires_phase1_without_network_or_empty_exports(self):
         with self.assertLogs(weekend.logger, level='ERROR') as captured:
             self.assertEqual(weekend.main([]), 1)

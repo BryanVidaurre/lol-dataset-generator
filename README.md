@@ -4,6 +4,37 @@ Collect High Elo (Master, Grandmaster and Challenger) Ranked Solo/Duo matches
 through the Riot Games API. The existing player and match-ID collectors feed
 two independent collectors: final match summaries and timeline events.
 
+## Ampliar la muestra con partidas de los parches 16.20 y 16.21
+
+La muestra `ampliacion_40k` contiene aproximadamente 40.000 partidas completas.
+Para conservarlas y añadir hasta **10.000 partidas adicionales** de los parches
+internos `16.20` y `16.21`, ejecuta desde la carpeta del proyecto:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_patch_sample.py --run-name ampliacion_50k_nuevos_parches --base-run ampliacion_40k --additional-matches 10000 --seed 42
+```
+
+El filtro se aplica a las partidas añadidas. La muestra base conserva sus
+parches originales, por lo que el dataset combinado también incluye partidas de
+otros parches. El objetivo es el número de partidas completas de la muestra base
+más 10.000: con 39.952 partidas iniciales serían **49.952 partidas completas**.
+La cantidad alcanzada depende de la disponibilidad del historial y de la API.
+
+| Muestra | Carpeta | Archivo principal |
+|---|---|---|
+| Existente, aproximadamente 40.000 | `data/weekend/ampliacion_40k/` | `dataset.csv` |
+| Ampliada, objetivo de 49.952 | `data/weekend/ampliacion_50k_nuevos_parches/` | `dataset.csv` |
+
+Cada carpeta también contiene `events.csv`, con los eventos de las partidas, y
+`milestones.csv`, con sus hitos. Los archivos de la ampliación se crean durante
+la exportación; `events.csv` puede ocupar varios gigabytes.
+
+El recolector reutiliza los datos disponibles y guarda el progreso en SQLite.
+Si se interrumpe, vuelve a ejecutar el mismo comando para continuar; no se suman
+otras 10.000 partidas por repetirlo. La recolección no tiene un límite de tiempo.
+Si no se encuentran suficientes partidas, puedes repetir el comando añadiendo,
+por ejemplo, `--players-per-region 400` para consultar más historiales.
+
 ## Weekend collection: a sample sized for roughly a weekend
 
 The **40-hour figure is a planning reference, not a time limit**. Collection and
@@ -77,6 +108,52 @@ change the sample size or impose a deadline. `--max-matches` sets the sample
 size. Persisted sample settings take precedence when resuming the same run.
 To deliberately create a new selection, use a different `--run-name`; its files
 are written to `data/weekend/<run-name>/`.
+
+To add 10,000 selected matches while keeping **every match** in an existing
+sample, extend it under a new name:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_weekend.py --run-name ampliacion_50k --extend-run ampliacion_40k --additional-matches 10000
+```
+
+The new sample copies the base selection and adds distinct match IDs, reusing
+downloaded data. It inherits the base regions, seed and player discovery limit.
+Rerun the exact command to resume; this does not add another 10,000 on each retry.
+Files go to `data/weekend/ampliacion_50k/`; the base sample and its files remain
+intact. The additional count refers to selected IDs, so exclusions or a shortage
+of available IDs can reduce the number of complete new rows.
+
+To preserve an existing sample and add 10,000 complete matches exclusively from
+internal game versions 16.20 and 16.21, run:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_patch_sample.py --run-name ampliacion_50k_nuevos_parches --base-run ampliacion_40k --additional-matches 10000 --seed 42
+```
+
+This retains all complete matches from the base sample, including its older
+patches. Only the added matches are restricted to 16.20 and 16.21. The target is
+the number of complete base matches plus 10,000; the existing sample is untouched.
+Resume with the same command.
+
+To collect up to 50,000 complete matches exclusively from internal game versions
+16.20 and 16.21, run:
+
+```powershell
+.\.venv\Scripts\python.exe collector/collect_patch_sample.py --run-name ampliacion_50k_parches --max-matches 50000 --seed 42
+```
+
+The filtered collector reuses cached complete matches, searches historical player
+histories in a broad date window, and checks the actual `gameVersion` before
+downloading a timeline and including a match. The first 200 players per region
+are sampled across the available tiers; historic history pages are paginated.
+History progress and completed matches are saved for resumption by repeating the
+same command. The historical end time is fixed at the start of the run so
+pagination stays stable. If the candidate pool is exhausted before the target,
+the command reports an incomplete result; it may be resumed with a larger
+`--players-per-region` (up to 5000). Results are written to
+`data/weekend/ampliacion_50k_parches/`; other samples remain unchanged. The
+actual number depends on available historical matches and API access, and the
+additional requests can take substantial time. There is no time cutoff.
 
 Rebuild CSV snapshots without any downloads:
 

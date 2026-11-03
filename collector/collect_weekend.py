@@ -122,9 +122,16 @@ def main(argv=None):
     parser.add_argument('--players-per-region', type=int, default=100)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--run-name', default='weekend')
+    parser.add_argument('--extend-run', help='Keep every match from this existing run')
+    parser.add_argument('--additional-matches', type=int,
+                        help='Extra selected matches when using --extend-run')
     parser.add_argument('--plan', action='store_true', help='Inspect capacity without API calls or starting a run')
     parser.add_argument('--export-only', action='store_true', help='Recover CSV without downloading')
     args = parser.parse_args(argv)
+    if bool(args.extend_run) != (args.additional_matches is not None):
+        parser.error('--extend-run and --additional-matches must be used together')
+    if args.additional_matches is not None and args.additional_matches <= 0:
+        parser.error('--additional-matches must be positive')
     if not math.isfinite(args.hours) or args.hours <= 0 or args.max_matches <= 0:
         parser.error('--hours must be finite and positive; --max-matches must be positive')
     if not 0 <= args.players_per_region <= 200 or not REGIONS:
@@ -149,8 +156,12 @@ def main(argv=None):
                     logger.error('No existing run to export. Start collection first.')
                     return 1
                 return export_recovery(run)
-            run = store.open_run(args.run_name, args.hours, args.max_matches, args.seed,
-                                 REGIONS, args.players_per_region)
+            if args.extend_run:
+                run = store.extend_run(args.run_name, args.extend_run,
+                                       args.additional_matches, args.hours)
+            else:
+                run = store.open_run(args.run_name, args.hours, args.max_matches, args.seed,
+                                     REGIONS, args.players_per_region)
             logger.info('Run %s: target %s matches; collection has no time cutoff.',
                         run['name'], run['target'])
             return worker(run)

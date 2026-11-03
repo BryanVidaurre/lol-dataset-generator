@@ -111,14 +111,14 @@ def get_puuid(region_code, summoner_id):
 
 
 def get_match_ids(routing_region, puuid, start=0, count=100, queue=420, start_time=None,
-                  raise_on_error=False):
+                  raise_on_error=False, end_time=None):
     """Fetch Ranked Solo/Duo IDs, by default starting on January 1, 2026."""
     if start_time is None:
         start_time = int(datetime.datetime(2026, 1, 1).timestamp())
     url = f"https://{routing_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
     params = []
     for name, value in (("start", start), ("count", count),
-                        ("queue", queue), ("startTime", start_time)):
+                        ("queue", queue), ("startTime", start_time), ("endTime", end_time)):
         if value is not None:
             params.append(f"{name}={value}")
     if params:

@@ -33,6 +33,15 @@ class RiotAPITests(unittest.TestCase):
         self.get.assert_called_once_with("https://example.test", headers=riot_api.HEADERS, timeout=10)
         self.sleep.assert_not_called()
 
+    def test_match_history_accepts_explicit_historical_end_time(self):
+        self.get.return_value = self.response(data=['KR_123'])
+        self.assertEqual(riot_api.get_match_ids('asia', 'player', start=100, start_time=10,
+                                                 end_time=20, raise_on_error=True), ['KR_123'])
+        url = self.get.call_args.args[0]
+        self.assertIn('start=100', url)
+        self.assertIn('startTime=10', url)
+        self.assertIn('endTime=20', url)
+
     def test_legacy_call_returns_none_on_forbidden(self):
         self.get.return_value = self.response(status=403)
         self.assertIsNone(riot_api.make_request("https://example.test"))
