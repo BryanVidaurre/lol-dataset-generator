@@ -32,3 +32,5 @@ data/*.db-wal
 data/*.db-shm
 data/weekend/
 data/weekend.lock
+data/processed/
+data/mining_ready/

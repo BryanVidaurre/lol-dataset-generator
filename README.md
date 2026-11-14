@@ -429,7 +429,8 @@ Results are written to **`reports/mining/mining_report.md`**. The experiment:
   (approximately 70/15/15). Boundary matches whose outcomes were not yet
   available when the next block started are purged.
 - Trains regularized logistic regression on champions by role and patch. Its
-  strength is selected on validation, then the final model is compared with a
+  strength is selected on validation; the encoder and final estimators remain
+  fitted on training only. The final model is compared with a
   Dummy classifier on the latest held-out test block. A
   [scikit-learn pipeline](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage)
   fits categorical preprocessing only on the corresponding training data.
@@ -459,6 +460,118 @@ not installed:
 
 ```powershell
 .\.venv\Scripts\python.exe -B -m unittest tests.test_mining -v
+```
+
+## Preprocesamiento antes de la minería
+
+Prepara los tres CSV sin modificar los originales, consultar Riot ni abrir SQLite:
+
+```powershell
+.\.venv\Scripts\python.exe analysis/preprocess_dataset.py --data-dir data/weekend/ampliacion_50k_nuevos_parches --output-dir data/processed/ampliacion_50k_nuevos_parches
+```
+
+El proceso lee `events.csv` por streaming y publica la carpeta de salida solo
+cuando termina y verifica que los archivos fuente no cambiaron de tamaño/mtime.
+Si la salida ya existe, elige otra carpeta; no se sobrescriben resultados.
+No necesita dependencias adicionales a Python.
+
+- Normaliza booleanos a 1/0, conserva nulos condicionales y convierte rango cero
+  en desconocido con un indicador. Los duplicados exactos se eliminan y los
+  duplicados conflictivos provocan un error.
+- Excluye duraciones menores de 300 segundos (`--min-duration` configurable).
+  Esto es un criterio analítico, no un detector de remakes. Conserva los demás
+  parches y duraciones, incluidos los casos atípicos.
+- Genera `dataset_clean.csv`, `milestones_clean.csv`, `events_clean.csv` sin el
+  JSON crudo voluminoso, y `quality_flags.csv` con desacuerdos entre fuentes.
+- Separa `prematch_features.csv` y `outcomes.csv`. `snapshots.csv` contiene
+  conteos de eventos hasta los minutos 5, 10, 15, 20, 25 y 30; usa `--minutes`
+  para cambiar los cortes. No genera estados en/después del final ni para
+  partidas sin eventos exportados. Los actores desconocidos se cuentan aparte.
+- `split_membership.csv` asigna partidas cronológicamente a train/validation/test
+  (70/15/15 aproximados), purgando resultados que no estaban disponibles al
+  empezar el siguiente bloque. Todos los estados de una partida comparten grupo.
+- `feature_manifest.json` documenta las columnas de entrada. Ajusta encoders,
+  imputadores y escaladores solo con entrenamiento, en la minería posterior.
+
+Consulta `preprocessing_report.md` y `preprocessing_report.json` en la salida
+para ver cantidades, incidencias y parámetros. No se calculan hashes completos
+de los originales; el JSON incluye tamaños, mtime y hash del script.
+
+Estos CSV solo exportan ciertos eventos: no contienen compras ni frames con
+oro, CS, niveles o vida por jugador. No permiten reconstruir builds ni estados
+individuales completos. Los patrones temporales preparados cubren bajas y
+objetivos; no constituyen todavía un recomendador. No uses todas las columnas
+del resumen limpio como predictores: conserva resultados finales para análisis
+descriptivo. El experimento previo `mine_dataset.py` sigue usando su formato de
+CSV original; los archivos normalizados nuevos tienen un contrato separado.
+
+```powershell
+.\.venv\Scripts\python.exe -B -m unittest tests.test_preprocessing -v
+```
+
+## Validar y preparar las estructuras para minería
+
+Reutiliza los CSV procesados y conserva las particiones existentes si son válidas.
+No repite la extracción de los eventos originales ni entrena modelos:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --only-binary=:all: -r requirements-preprocessing.txt
+.\.venv\Scripts\python.exe -B analysis/prepare_mining.py --processed-dir data/processed/ampliacion_50k_nuevos_parches --original-dir data/weekend/ampliacion_50k_nuevos_parches --output-dir data/mining_ready/ampliacion_50k_nuevos_parches
+```
+
+La salida independiente contiene:
+
+| Archivo | Contenido |
+|---|---|
+| `strategic_states.parquet` | Estado por partida, equipo y corte; conteos propios/enemigos, diferencias, fase y primeras capturas observadas. |
+| `association_transactions.parquet` | Seis categorías por estado, sin el resultado final dentro de `items`. |
+| `event_sequences.parquet` | Secuencias por partida/equipo, con tiempos, itemsets simultáneos e IDs de origen. |
+| `team_outcomes.parquet` | Victoria final por equipo; unir solo como etiqueta o consecuente supervisado. |
+| `feature_manifest.json` | Predictores, claves, metadatos, variables prohibidas y límites. |
+| `rule_policy.json` | Umbrales fijos y criterios para evitar reglas triviales o redundantes. |
+| `preprocessing_validation.json` | Comprobaciones completas, muestra reproducible, estadísticas y procedencia. |
+| `initial_diagnosis.json` | Problemas confirmados, riesgos y verificaciones pendientes al inicio. |
+| `preprocessing_report.md` | Informe académico en español, decisiones, validación y reproducción. |
+
+DuckDB usa una base temporal en disco con límite de memoria configurable
+(`--memory-limit 2GB`) y escribe Parquet con ZSTD. No se conserva una segunda
+copia grande de eventos. Las versiones se leen siempre como texto; usar
+`utils.analysis_csv.read_analysis_csv` para CSV. Nunca convertir `16.20` o
+`16.10` a decimal.
+
+Los estados están orientados simétricamente desde cada equipo; `team_id` es
+metadato. Se excluyen `purged` de todos los archivos de experimentos. Las dos
+perspectivas y varios cortes de una misma partida son observaciones relacionadas.
+La partición cronológica actual no es una evaluación de un parche nunca visto.
+
+Para seleccionar predictores sin etiquetas ni identificadores:
+
+```python
+from pathlib import Path
+import duckdb
+from analysis.mining_inputs import predictor_query, iter_sequence_prefixes
+
+folder = Path("data/mining_ready/ampliacion_50k_nuevos_parches")
+db = duckdb.connect()
+training_inputs = db.sql(predictor_query(folder, split="train"))
+for sequence in iter_sequence_prefixes(
+    folder / "event_sequences.parquet", cutoff_ms=15 * 60_000, split="train"
+):
+    # Una secuencia de itemsets observados hasta el minuto 15.
+    pass
+db.close()
+```
+
+Las secuencias completas son históricas: recortarlas antes de utilizarlas como
+entradas contextuales. No aplanar eventos simultáneos imponiendo un orden ficticio.
+Para predicción a un corte fijo, seleccionar además las partidas con un estado
+válido en ese corte: el prefijo por sí solo no acredita que la partida siga activa.
+Apriori/FP-Growth pueden consumir `items`; PrefixSpan con soporte de itemsets
+puede consumir las secuencias. La ejecución de algoritmos, la selección de reglas
+y la evaluación predictiva son etapas posteriores.
+
+```powershell
+.\.venv\Scripts\python.exe -B -m unittest tests.test_mining_ready tests.test_preprocessing tests.test_patch_types -v
 ```
 
 ## API references

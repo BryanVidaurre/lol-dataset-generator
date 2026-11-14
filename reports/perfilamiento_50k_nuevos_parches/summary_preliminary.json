@@ -1,0 +1,203 @@
+{
+  "matches": 48000,
+  "milestones": 48000,
+  "columns": {
+    "dataset": 49,
+    "milestones": 18
+  },
+  "headers": {
+    "dataset": [
+      "match_id",
+      "patch",
+      "game_duration",
+      "game_creation",
+      "t1_top",
+      "t1_jungle",
+      "t1_middle",
+      "t1_bottom",
+      "t1_support",
+      "t1_avg_tier",
+      "t2_top",
+      "t2_jungle",
+      "t2_middle",
+      "t2_bottom",
+      "t2_support",
+      "t2_avg_tier",
+      "win_team1",
+      "t1_first_blood",
+      "t1_champion_kills",
+      "t1_first_tower",
+      "t1_tower_kills",
+      "t1_first_dragon",
+      "t1_dragon_kills",
+      "t1_first_herald",
+      "t1_herald_kills",
+      "t1_first_horde",
+      "t1_horde_kills",
+      "t1_first_baron",
+      "t1_baron_kills",
+      "t1_first_atakhan",
+      "t1_atakhan_kills",
+      "t1_first_inhibitor",
+      "t1_inhibitor_kills",
+      "t2_first_blood",
+      "t2_champion_kills",
+      "t2_first_tower",
+      "t2_tower_kills",
+      "t2_first_dragon",
+      "t2_dragon_kills",
+      "t2_first_herald",
+      "t2_herald_kills",
+      "t2_first_horde",
+      "t2_horde_kills",
+      "t2_first_baron",
+      "t2_baron_kills",
+      "t2_first_atakhan",
+      "t2_atakhan_kills",
+      "t2_first_inhibitor",
+      "t2_inhibitor_kills"
+    ],
+    "milestones": [
+      "match_id",
+      "patch",
+      "first_blood_team",
+      "first_blood_time",
+      "first_tower_team",
+      "first_tower_time",
+      "first_dragon_team",
+      "first_dragon_time",
+      "first_herald_team",
+      "first_herald_time",
+      "first_horde_team",
+      "first_horde_time",
+      "first_baron_team",
+      "first_baron_time",
+      "first_atakhan_team",
+      "first_atakhan_time",
+      "first_inhibitor_team",
+      "first_inhibitor_time"
+    ]
+  },
+  "missing_summary_values": {},
+  "quality_errors": {
+    "duplicate_match_id": 0,
+    "invalid_row_width": 0,
+    "invalid_win_boolean": 0,
+    "repeated_champion_within_match": 0,
+    "invalid_objective_boolean": 0,
+    "negative_objective_count": 0,
+    "duplicate_milestone_match": 0,
+    "milestone_patch_mismatch": 0,
+    "invalid_milestone_team": 0,
+    "milestone_team_without_time": 0,
+    "milestone_outside_duration_margin": 0
+  },
+  "missing_milestones": 0,
+  "first_flag_disagreement_matches": {
+    "blood": 90
+  },
+  "milestone_time_without_team": {
+    "herald": 3287,
+    "horde": 45
+  },
+  "milestone_time_with_zero_final_kills": {
+    "herald": 3287,
+    "horde": 44
+  },
+  "patches": {
+    "16.20": 16657,
+    "16.21": 14625,
+    "16.19": 6436,
+    "16.18": 3876,
+    "16.17": 2909,
+    "16.16": 1433,
+    "16.15": 763,
+    "16.14": 496,
+    "16.13": 202,
+    "16.11": 101,
+    "16.8": 93,
+    "16.10": 78,
+    "16.6": 71,
+    "16.12": 67,
+    "16.7": 61,
+    "16.9": 44,
+    "16.1": 34,
+    "16.3": 21,
+    "16.4": 13,
+    "16.5": 11,
+    "16.2": 6,
+    "15.24": 3
+  },
+  "regions": {
+    "KR": 10108,
+    "EUW1": 9971,
+    "NA1": 9750,
+    "BR1": 9167,
+    "LA2": 9004
+  },
+  "team1_wins": 22931,
+  "team1_win_pct": 47.77291666666667,
+  "numeric": {
+    "duration_minutes": {
+      "min": 1.0,
+      "p05": 15.283333333333333,
+      "median": 26.766666666666666,
+      "mean": 26.430409374999996,
+      "p95": 36.96666666666667,
+      "max": 60.5
+    },
+    "t1_avg_tier": {
+      "min": 0.0,
+      "p05": 1.0,
+      "median": 1.4,
+      "mean": 1.5336766666666666,
+      "p95": 2.6,
+      "max": 3.0
+    },
+    "t2_avg_tier": {
+      "min": 0.0,
+      "p05": 1.0,
+      "median": 1.4,
+      "mean": 1.5870837500000001,
+      "p95": 2.67,
+      "max": 3.0
+    }
+  },
+  "unknown_tier_teams": {
+    "t1": 761,
+    "t2": 518
+  },
+  "matches_with_unknown_tier": 1279,
+  "objective_present_matches": {
+    "tower": 46940,
+    "dragon": 47087,
+    "herald": 39802,
+    "horde": 47085,
+    "baron": 35716,
+    "atakhan": 3,
+    "inhibitor": 37246
+  },
+  "matches_under_5_minutes": 677,
+  "matches_over_60_minutes": 1,
+  "game_dates_utc": [
+    "2026-01-02T15:57:54.474000+00:00",
+    "2026-11-02T18:06:01.572000+00:00"
+  ],
+  "top_champions": {
+    "Jhin": 8309,
+    "LeeSin": 8199,
+    "Yone": 8129,
+    "Sylas": 7594,
+    "Kaisa": 7268,
+    "Jayce": 6712,
+    "Qiyana": 6697,
+    "Yasuo": 6582,
+    "Lulu": 6502,
+    "Syndra": 6399,
+    "Nautilus": 6258,
+    "Ezreal": 6227,
+    "Yunara": 6095,
+    "Locke": 5905,
+    "Thresh": 5779
+  }
+}

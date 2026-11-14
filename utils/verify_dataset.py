@@ -1,5 +1,9 @@
-import pandas as pd
 import os
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from utils.analysis_csv import read_analysis_csv
 
 def run_tests():
     csv_path = "data/dataset_test.csv"
@@ -8,7 +12,7 @@ def run_tests():
         return
         
     print("Chargement du dataset...\n")
-    df = pd.read_csv(csv_path)
+    df = read_analysis_csv(csv_path)
     
     print("=== TEST 1 : Vérification des rôles (valeurs nulles) ===")
     null_counts = df[["t1_top", "t1_jungle", "t1_middle", "t1_bottom", "t1_support"]].isnull().sum()

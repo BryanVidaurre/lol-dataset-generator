@@ -9,6 +9,10 @@ import json
 import logging
 from pathlib import Path
 import platform
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from utils.analysis_csv import read_analysis_csv
 
 import joblib
 import matplotlib
@@ -33,7 +37,7 @@ FEATURES = CHAMPIONS + ['patch_group']
 
 
 def load_data(path, min_seconds=300):
-    data = pd.read_csv(path, dtype={'win_team1': 'string'})
+    data = read_analysis_csv(path, dtype={'win_team1': 'string'})
     required = set(CHAMPIONS + ['match_id', 'game_creation', 'game_duration', 'patch', 'win_team1'])
     if required - set(data.columns):
         raise ValueError('Dataset is missing columns: ' + str(sorted(required - set(data.columns))))
@@ -90,7 +94,7 @@ def evaluate(y, probability):
 
 def objective_rules(data, path, minute=15, min_cases=30):
     """Descriptive association rules; unknown actor teams and late events excluded."""
-    milestones = pd.read_csv(path)
+    milestones = read_analysis_csv(path)
     if milestones['match_id'].duplicated().any():
         raise ValueError('Duplicated milestone match IDs')
     merged = data[['match_id', 'target']].merge(milestones, on='match_id', how='inner', validate='one_to_one')
@@ -177,16 +181,16 @@ def run(dataset, milestones, output, min_seconds=300, minute=15):
         tuning.append({'C': c, 'validation_auc': score['roc_auc'], 'validation_log_loss': score['log_loss']})
         LOGGER.info('C=%s, validation AUC=%.4f', c, score['roc_auc'])
     best_c = max(tuning, key=lambda row: (row['validation_auc'], -row['validation_log_loss']))['C']
-    development = pd.concat([train, validation]).sort_values(['started_at', 'match_id'])
-    final = make_model(best_c).fit(development[FEATURES], development['target'])
-    dummy = DummyClassifier(strategy='prior').fit(development[FEATURES], development['target'])
+    # Validation selects C but does not fit the encoder, prior or coefficients.
+    final = make_model(best_c).fit(train[FEATURES], train['target'])
+    dummy = DummyClassifier(strategy='prior').fit(train[FEATURES], train['target'])
     probability = final.predict_proba(test[FEATURES])[:, 1]
     dummy_probability = dummy.predict_proba(test[FEATURES])[:, 1]
     scores = {'draft_logistic': evaluate(test['target'], probability),
               'dummy_prior': evaluate(test['target'], dummy_probability)}
     feature_names = final.named_steps['encode'].get_feature_names_out()
     weights = final.named_steps['model'].coef_[0]
-    occurrences = np.asarray(final.named_steps['encode'].transform(development[FEATURES]).sum(axis=0)).ravel()
+    occurrences = np.asarray(final.named_steps['encode'].transform(train[FEATURES]).sum(axis=0)).ravel()
     coefficients = pd.DataFrame({'feature': feature_names, 'coefficient': weights,
                                  'absolute_weight': np.abs(weights), 'training_occurrences': occurrences.astype(int)})
     coefficients.sort_values('absolute_weight', ascending=False).to_csv(output / 'feature_weights.csv', index=False)
@@ -220,6 +224,7 @@ def run(dataset, milestones, output, min_seconds=300, minute=15):
               'purged_boundary_matches': len(data) - sum(len(part) for part in (train, validation, test)),
               'features': FEATURES, 'excluded_features': ['current average tiers', 'final objectives', 'duration', 'timestamps', 'match ID'],
               'best_C': best_c, 'scores_on_untouched_test': scores,
+              'fit_policy': 'All learned transforms and final estimators fit on train only; validation selects C.',
               'versions': {'python': platform.python_version(), 'pandas': pd.__version__,
                            'numpy': np.__version__, 'scikit-learn': sklearn.__version__},
               'limitations': ['Observational associations do not establish causation.',
@@ -236,7 +241,7 @@ def run(dataset, milestones, output, min_seconds=300, minute=15):
              'Entradas: diez campeones por rol y parche. Salida: victoria del equipo 1.',
              'Se excluyen objetivos finales, duracion y rango actual para evitar informacion posterior al momento de prediccion.',
              'Separacion temporal aproximada 70/15/15; se eliminan partidas de entrenamiento/validacion que terminan despues del inicio del siguiente bloque.',
-             'El encoder se aprende dentro de cada entrenamiento. C se elige en validacion y la prueba se evalua una vez tras reajustar con entrenamiento+validacion.',
+             'El encoder y los estimadores se ajustan solo con entrenamiento. C se elige en validacion y la prueba se evalua una vez sin reajustar con validacion.',
              '', '| Modelo | Accuracy | Balanced accuracy | ROC AUC | Log loss |', '|---|---:|---:|---:|---:|']
     for label, score in scores.items():
         lines.append(f"| {label} | {score['accuracy']:.4f} | {score['balanced_accuracy']:.4f} | {score['roc_auc']:.4f} | {score['log_loss']:.4f} |")
@@ -245,7 +250,7 @@ def run(dataset, milestones, output, min_seconds=300, minute=15):
                   'Una AUC ligeramente mayor que 0.5 no basta para considerarlo un predictor util.']
     if scores['draft_logistic']['log_loss'] >= scores['dummy_prior']['log_loss']:
         lines += ['', 'El log loss tampoco mejora la referencia: sus probabilidades no son mejores en esta prueba.']
-    lines += ['', 'El modelo Dummy predice con la frecuencia de clases del periodo de desarrollo; es la referencia a superar.',
+    lines += ['', 'El modelo Dummy predice con la frecuencia de clases del entrenamiento; es la referencia a superar.',
               'ROC AUC=0.5 representa una ordenacion al azar; valores superiores indican mayor capacidad de discriminar.',
               '', '![ROC](roc_curve.png)', '', '![Matriz de confusion](confusion_matrix.png)', '',
               '## Relacion entre objetivos tempranos y victoria', '',

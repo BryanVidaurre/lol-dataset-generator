@@ -1,0 +1,137 @@
+{
+  "match_id": "EUW1_8009376485",
+  "cutoff_ms": 900000,
+  "selection": "didactic; low event count; no outcome used",
+  "sources": [
+    "data\\processed\\ampliacion_50k_nuevos_parches\\events_clean.csv",
+    "data\\mining_ready\\ampliacion_50k_nuevos_parches\\strategic_states.parquet"
+  ],
+  "relevant_events_at_cutoff": [
+    {
+      "event_id": "EUW1_8009376485:6:21",
+      "timestamp_ms": 358687,
+      "event_type": "CHAMPION_KILL",
+      "actor_team_id": 200,
+      "monster_type": null,
+      "building_type": null,
+      "frame_index": 6,
+      "event_index": 21,
+      "feature": "kills"
+    },
+    {
+      "event_id": "EUW1_8009376485:7:1",
+      "timestamp_ms": 364737,
+      "event_type": "ELITE_MONSTER_KILL",
+      "actor_team_id": 200,
+      "monster_type": "DRAGON",
+      "building_type": null,
+      "frame_index": 7,
+      "event_index": 1,
+      "feature": "dragons"
+    },
+    {
+      "event_id": "EUW1_8009376485:11:17",
+      "timestamp_ms": 638113,
+      "event_type": "CHAMPION_KILL",
+      "actor_team_id": 200,
+      "monster_type": null,
+      "building_type": null,
+      "frame_index": 11,
+      "event_index": 17,
+      "feature": "kills"
+    },
+    {
+      "event_id": "EUW1_8009376485:12:16",
+      "timestamp_ms": 693885,
+      "event_type": "CHAMPION_KILL",
+      "actor_team_id": 200,
+      "monster_type": null,
+      "building_type": null,
+      "frame_index": 12,
+      "event_index": 16,
+      "feature": "kills"
+    },
+    {
+      "event_id": "EUW1_8009376485:13:5",
+      "timestamp_ms": 734165,
+      "event_type": "ELITE_MONSTER_KILL",
+      "actor_team_id": 200,
+      "monster_type": "DRAGON",
+      "building_type": null,
+      "frame_index": 13,
+      "event_index": 5,
+      "feature": "dragons"
+    },
+    {
+      "event_id": "EUW1_8009376485:14:32",
+      "timestamp_ms": 829669,
+      "event_type": "CHAMPION_KILL",
+      "actor_team_id": 200,
+      "monster_type": null,
+      "building_type": null,
+      "frame_index": 14,
+      "event_index": 32,
+      "feature": "kills"
+    },
+    {
+      "event_id": "EUW1_8009376485:14:35",
+      "timestamp_ms": 832074,
+      "event_type": "BUILDING_KILL",
+      "actor_team_id": 200,
+      "monster_type": null,
+      "building_type": "TOWER_BUILDING",
+      "frame_index": 14,
+      "event_index": 35,
+      "feature": "towers"
+    }
+  ],
+  "next_relevant_event_excluded": {
+    "event_id": "EUW1_8009376485:16:4",
+    "timestamp_ms": 903404,
+    "event_type": "BUILDING_KILL",
+    "actor_team_id": 200,
+    "monster_type": null,
+    "building_type": "TOWER_BUILDING",
+    "frame_index": 16,
+    "event_index": 4,
+    "feature": "towers"
+  },
+  "all_exported_events_at_cutoff": 29,
+  "verified_states": [
+    {
+      "match_id": "EUW1_8009376485",
+      "team_id": 100,
+      "patch": "16.20.824.8524",
+      "split": "train",
+      "game_minute": 15,
+      "recorded_event_count": 29,
+      "kills_team": 0,
+      "kills_enemy": 4,
+      "kills_diff": -4,
+      "dragons_team": 0,
+      "dragons_enemy": 2,
+      "dragons_diff": -2,
+      "towers_team": 0,
+      "towers_enemy": 1,
+      "towers_diff": -1
+    },
+    {
+      "match_id": "EUW1_8009376485",
+      "team_id": 200,
+      "patch": "16.20.824.8524",
+      "split": "train",
+      "game_minute": 15,
+      "recorded_event_count": 29,
+      "kills_team": 4,
+      "kills_enemy": 0,
+      "kills_diff": 4,
+      "dragons_team": 2,
+      "dragons_enemy": 0,
+      "dragons_diff": 2,
+      "towers_team": 1,
+      "towers_enemy": 0,
+      "towers_diff": 1
+    }
+  ],
+  "counter_validation": "passed"
+}

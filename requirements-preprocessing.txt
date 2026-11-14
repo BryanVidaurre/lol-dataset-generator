@@ -1,0 +1,2 @@
+# Binary wheels avoid a C++ build on recent Python installations.
+duckdb>=2.0,<3
